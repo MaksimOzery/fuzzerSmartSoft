@@ -1,132 +1,101 @@
-# -*- coding: utf-8 -*-
-"""
-genetic algoritm
-"""
-import sys
-import time
-import string
-import random
-import logging
-import variablesIP
-import headers_test as ht
-from optparse import OptionParser
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from itertools import *
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+data=[  
 
-from requests.auth import HTTPBasicAuth
-try: 
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
-    from bs4 import BeautifulSoup
+          
+    {
+         
+        'act':'new',
+        'certmethod': 'internal',
+        'descr': 'ffff',
+        'cert': '',
+        'key': '',
+        'caref_sign_csr': '619b94248a9a2',
+        'digest_alg_sign_csr': 'sha256',
+        'lifetime_sign_csr': '397',
+        'csr': '',
+        'basic_constraints_path_len_sign_csr':'' ,
+        'caref': '619b94248a9a2',
+        'cert_type':'usr_cert',
+        'keytype': 'RSA',
+        'keylen': '2048',
+        'curve': 'prime256v1',
+        'digest_alg': 'sha256',
+        'lifetime': '397',
+        'private_key_location': 'firewall',
+        'dn_country': 'AD',
+        'dn_state': 'mo',
+        'dn_city': 'Озеры',
+        'dn_organization': 'ssm',
+        'dn_email':'mail@mail.ru',
+        'dn_commonname': '234',
+        'altname_type[]': 'DNS',
+        'altname_value[]':'' ,
+        'csr_keytype': 'RSA',
+        'csr_keylen': '2048',
+        'csr_curve': 'prime256v1',
+        'csr_digest_alg': 'sha256',
+        'csr_dn_country': 'AD',
+        'csr_dn_state': '',
+        'csr_dn_city': '',
+        'csr_dn_organization': '',
+        'csr_dn_organizationalunit': '',
+        'csr_dn_email':'' ,
+        'csr_dn_commonname': '',
+        'certref': '619b949b283ee',
+        'save': 'Сохранить'
     
     
+    },
+          
 
-__version__ = "1.0"
+            #id: 0
+            #firewall_nat_edit.php?id=0",
+            { 
+            'interface[]': 'wan',
+            'ipprotocol': 'inet',
+            'protocol': 'tcp',
+            'src': 'any',
+            'srcmask': '128',
+            'srcbeginport': 'any',
+            'srcendport': 'any',
+            'dst': 'any',
+            'dstmask': '32',
+           'dstbeginport': '80',
+            'dstendport': '80',
+            'target': 'bogons',
+            'local-port': '80',
+            'poolopts':'' ,
+            'log': 'yes',
+            'category[]': '99',
+            'descr': '99',
+            'tag': '99',
+            'tagged': '99',
+            'natreflection': 'purenat',
+            'filter-rule-association': 'add-associated',
+            'Submit': 'Сохранить'
+            },
+   
+    {
+              
+            'name': 'test1',
+            'type': 'ldap',
+            'ldap_host': '10.08.01.0',
+            'ldap_port': '389',
+            'ldap_urltype': 'TCP - Standard',
+            'ldap_protver': '3',
+            'ldap_binddn': 'mak',
+            'ldap_bindpw': '123',
+            'ldap_scope': 'one',
+            'ldap_basedn': '',
+            'ldapauthcontainers': '9o',
+            'ldap_extended_query': '',       
+             'ldap_tmpltype': 'open',
+             'ldap_attr_user': 'cn',
+             'save': 'Save'
 
-
-logger = logging.getLogger('')
-
-# form genetic codes
-GENES = "".join(map(lambda x, y: x+y, string.ascii_uppercase, string.ascii_lowercase)) + \
-        string.punctuation + " "
-GOAL = ""   
-
-#--------------------------------------------------------------------------
-ip=variablesIP.IP_variables
-aip='https://'+ip+'/index.php'
-
-client = requests.session()
-r = client.get( aip,  headers=ht.headers, verify=False )
-text=r.content.decode()
-#print(text)
-
-csrftoken =  client.cookies.get_dict()
-print(client.cookies.get_dict())
-
-
-print("------------autorization-------------") 
-
-n, v=ht.namevalue(text)
-print( n, v)
-
-payload = {'usernamefld': "root",
-           'passwordfld':"ting",
-           'login':'1', 
-            n:v 
-           } 
-
-#автозицаия post  КУКИ НЕ РАБОТАЮТ
-
-
-
-r = client.post( aip,  data=payload,  headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'],ips=ip),  verify=False )
-#print(r.status_code, r.reason)
-print("------------autorization-------------")  
-
-ip_='https://'+ip    
-url=[
-         ip_+'/system_usermanager.php?act=new' ,    
-         ip_+"/firewall_nat_edit.php",     
-         ip_+"/firewall_nat_1to1_edit.php",
-         ip_+"/firewall_nat_out.php",
-         ip_+"/firewall_nat_npt_edit.php?after=-1",
-         ip_+"/firewall_rules_edit.php?if=FloatingRules",
-         ip_+"/firewall_rules_edit.php?if=lan",
-         ip_+"/firewall_rules_edit.php?if=lo0",
-         ip_+"/firewall_rules_edit.php?if=wan", 
-         ip_+"/system_advanced_firewall.php",
-         ip_+"/firewall_scrub.php",
-         ip_+"/firewall_schedule_edit.php",   
-         #---------------------------------------
-         ip_+'/interfaces.php',
-         ip_+'/interfaces_assign.php',     
-         ip_+'/interfaces_bridge_edit.php',    
-         ip_+'/interfaces_gif_edit.php',   
-         ip_+'/interfaces_gre_edit.php',     
-         ip_+'/interfaces_groups_edit.php',     
-         ip_+'/interfaces_lagg_edit.php',
-         ip_+'/interfaces_ppps_edit.php', 
-         ip_+'/interfaces_vlan_edit.php',   
-         ip_+'/interfaces_wireless_edit.php',  
-         ip_ + '/system_groupmanager.php?act=',
-         ip_ + '/system_groupmanager.php',
-         ip_ + '/system_usermanager_addprivs.php?groupid=',
-         ip_ + '/system_authservers.php?act=',        
-         ip_ + '/system_authservers.php',
-         ip_ + '/diag_authentication.php'
-         ]
-    
-
-data=[{ 
-             n:v ,     
-            'act': 'new',
-            'userid': '',
-            'priv_delete': '',
-            'api_delete': '',
-            'certid': '',
-            'scope': 'user',
-            'usernamefld': 'tet9s',
-            'oldusername': '',
-            'passwordfld1': 'test',
-            'passwordfld2': 'tstgh',
-            'descr':'test' ,
-            'email':'test@mail.ru' ,
-            'comment': 'test',
-            'landing_page': 'https://192.168.56.107/index.php',
-            'language': 'По умолчанию.',
-            'shell':'', 
-            'expires':'09/30/2021' ,
-            'groups[]': 'admins',
-            'otp_seed':'' ,
-            'authorizedkeys':'' ,
-            'ipsecpsk':'' ,
-            'save': 'save'
-            
-        },
+           },
+       
      #https://192.168.56.110/firewall_nat_edit.php
-          {  n:v,
+          {  
             'disabled': 'yes',
             'nordr': 'on',
             'interface[]': 'wan',
@@ -151,7 +120,7 @@ data=[{
          
            #https://192.168.56.110/firewall_nat_1to1_edit.php
         {
-             n:v,
+             
             'interface': 'wan',
             'type': 'binat',
             'external': '10.0.8.8',
@@ -165,7 +134,7 @@ data=[{
          
          },
          #https://192.168.56.110/firewall_nat_out.php
-         {     n:v,
+         {     
               'id':'', 
               'act':"", 
               'mode': 'automatic',
@@ -173,7 +142,7 @@ data=[{
       
           },
            #https://192.168.56.110/firewall_nat_npt_edit.php?after=-1
-          {     n:v,
+          {     
                'interface': 'wan',
                'src': '',
                'srcmask': '128',
@@ -186,7 +155,7 @@ data=[{
                      },
            #https://192.168.56.110/firewall_rules_edit.php?if=FloatingRules
           {
-            n:v, 
+             
             'id': '0',
             'after': '',
             'floating': 'yes',
@@ -228,7 +197,7 @@ data=[{
          #https://192.168.56.110/firewall_rules_edit.php?if=lan 
          
          {      
-             n:v,
+             
             'id':'' ,
             'after': '',
             'floating': '',
@@ -267,7 +236,7 @@ data=[{
          #https://192.168.56.110/firewall_rules_edit.php?if=lo0 
          {
           
-            n:v,
+            
             'id': '',
            'after': '',
             'floating': '',
@@ -313,7 +282,7 @@ data=[{
        
               {
           
-            n:v,
+            
             'id': '',
             'after': '',
             'floating': '',
@@ -353,7 +322,7 @@ data=[{
     
          #"https://192.168.56.110/system_advanced_firewall.php" 
          {
-             n:v,
+             
             'ipv6allow': 'yes',
             'natreflection': 'yes',
             'enablebinatreflection': 'yes',
@@ -378,7 +347,7 @@ data=[{
           },
          # "https://192.168.56.110/firewall_scrub.php"    +
          {
-            n:v,
+            
             'id': '',
             'act': 'edit',
             'scrub_interface_disable': 'yes',
@@ -387,7 +356,7 @@ data=[{
         
           },
          #"https://192.168.56.110/firewall_schedule_edit.php"  
-         {   n:v,
+         {   
             'name': 'test',
             'descr': 'test2',
             'monthsel': '10',
@@ -403,10 +372,11 @@ data=[{
             'submit': 'save'
            
           },
+          
             #'/interfaces.php',
             
                 {
-                   n:v, 
+                    
                     'action': '',
                     'id': '',
                     'lan':' em0',
@@ -418,7 +388,7 @@ data=[{
             #'/interfaces_assign.php',
             
                 {
-                    n:v,                 
+                                     
                     'action': '',
                     'id': '',
                     'lan': 'em0',
@@ -428,7 +398,7 @@ data=[{
                     },
             #'/interfaces_bridge_edit.php',
                 {
-                   n:v, 
+                    
                     'members[]':'lan',
                     'descr': 'rrffff',
                     'proto': 'rstp',
@@ -453,7 +423,7 @@ data=[{
             
             
                 {
-                   n:v, 
+                    
                  'if': 'lan',
                 'remote-addr': '10.8.8.1',
                 'tunnel-local-addr': '10.8.8.0',
@@ -469,7 +439,7 @@ data=[{
             #'/interfaces_gre_edit.php',
             
                 {
-                    n:v, 
+                     
                     'if': 'lan',
                     'remote-addr': '10.8.0.8',
                     'tunnel-local-addr': '10.8.0.8',
@@ -485,7 +455,7 @@ data=[{
                     },
             #'/interfaces_groups_edit.php',
                 {
-                    n:v,                 
+                                     
                     'ifname': 'htthth',
                     'descr': 'rgrgrgrg',
                     'members[]': 'lan',
@@ -494,7 +464,7 @@ data=[{
             #'/interfaces_lagg_edit.php' &&&  Родительский интерфейс,
             
                 {
-                   n:v, 
+                    
                     'proto': 'lacp',
                     'descr': "tset",
                     'lacp_fast_timeout': 'yes',
@@ -505,7 +475,7 @@ data=[{
             #'/interfaces_ppps_edit.php',
             
                 {
-                   n:v, 
+                    
                     'type': 'ppp',
                     'descr': 'test',
                     'country': 'AF',
@@ -545,7 +515,7 @@ data=[{
                     },
             #'/interfaces_vlan_edit.php',
                 {
-                   n:v, 
+                    
                     'if': 'em0',
                     'tag': '44',
                     'pcp': '0',
@@ -556,15 +526,16 @@ data=[{
                     },
             #'/interfaces_wireless_edit.php'   
              {
-                   n:v, 
+                    
                    'descr': 'test',
                    'mode': 'bss',
                    'cloneif': '',
                    'Submit': 'save'
                     },
+                    
                      
                    {
-          n:v,
+          
         'name': 'test1',
         'type': 'ldap',
         'ldap_host': '10.08.01.0',
@@ -583,7 +554,7 @@ data=[{
 
        },
            {
-            n:v,
+            
             'name': 'Local Database',
             'type': 'local',
             'enable_password_policy_constraints': 'on',
@@ -596,169 +567,19 @@ data=[{
                 
                 
         {
-            n:v,
+            
            'id': '0',
            'act': 'del'     
            }
         ,
         {
-        n:v,
+        
         'authmode': 'Local Database',
         'username': 'mak',
         'password': '123',
         'save': 'Save'  
                  
         }            
-         
+       
               
 ]
-
-
-page =  client.get(url[0], verify=False )
-
-csrftoken =  client.cookies.get_dict()
-print(page.status_code)
-#-------------------------------------------------------------------
-        
-def active(client,s, url,csrftoken_PHPSESSID,csrftoken_cookie_test):       
-    page =  client.post(url,data=s, headers=ht.Headers_(csrftoken_PHPSESSID, csrftoken_cookie_test,ips=ip),   verify=False )
-    return page        
-        
-def fitness(dnk, goal):
-    f = 0
-    for index, gene in enumerate(dnk):
-        if gene != goal[index]:
-            f -= 1
-    return f
-
-def sample_wr(population, k):
-    n = len(population)
-    _random, _int = random.random, int  # speed hack 
-    result = [None] * k
-    for i in range(k):
-        j = _int(_random() * n)
-        result[i] = population[j]
-  
-    return result
-
-
-class GeneticCode:
-    def __init__(self, dnk="", goal=GOAL):
-        if dnk == "":
-            self.dnk = "".join(sample_wr(GENES, len(goal)))
-        else:
-            self.dnk = dnk
-        self.goal = goal
-
-    def get(self):
-        return self.dnk
-
-    def fitness(self):
-        return fitness(self.dnk, self.goal)
-    
-    def mutate(self, turns=5):
-        _dnk = list(self.dnk)
-        for item in range(turns):
-            rnd_elem_index = random.randint(0, len(_dnk)-1)
-            if _dnk[rnd_elem_index] == self.goal[rnd_elem_index]:
-                pass
-            else:
-                _dnk[rnd_elem_index] = random.choice(GENES)
-        self.dnk = "".join(_dnk)
-
-    def replicate(self, another_dnk):  
-        part = random.randint(0, len(self.dnk)-1)
-        return "".join(self.dnk[0:part] + another_dnk.get()[part:])
-
-
-class GenePool():
-    pool_size = 100
-    
-    def __init__(self, goal, init, json,url):
-        self.pool = [GeneticCode(goal=goal) for item in range(self.pool_size)]
-        self.goal = goal
-        self.init=init
-        self.json=json
-        self.url=url
-    def _print(self):
-        for item in self.pool:
-            print( item.get() + " - " + str(item.fitness()))
-
-    def get_random(self):
-        
-        return self.pool[random.randint(0, len(self.pool)-1)]
-
-    def darvin(self, winners=0.1):
-
-        all_fitness = [(item.fitness(), item) for item in self.pool]
-        
-        new_pool = [item[1] for item in
-                    sorted(all_fitness, key=lambda x: x[0], reverse=True)]       
-        
-        self.pool = new_pool[:int(round(self.pool_size * winners))]
-
-        while len(self.pool) < self.pool_size:
-            new_life = self.get_random().replicate(self.get_random())
-            new_gc = GeneticCode(dnk=new_life, goal=self.goal)
-            self.pool.append(new_gc)
-
-    def evolution(self, turns=1000):
-        
-        iterations = 0
-        while (iterations < turns) and (self.pool[0].get() != self.goal):
-            for index, item in enumerate(self.pool):
-                self.pool[index].mutate()
-            self.darvin()
-            self.requset_evolution(self.json, self.pool)
-            
-            logger.info(self.pool[0].get())
-            time.sleep(0.1)
-            iterations += 1
-            
-        return iterations
-
-    def requset_evolution(self, j, k):
-        massiv=[]
-        for item in k:
-            massiv.append(item.get())            
-        for i in range(len(massiv)):        
-            j[self.init]=massiv[i]
-            
-            info=active(client,j,self.url,csrftoken['PHPSESSID'],csrftoken['cookie_test'])
-            if(info.status_code==500):
-                print("-------------------------")  
-                f = open( 'HTML_500.txt', 'w' )
-                f.write("%s" % str(j[self.init])+"key"+str(self.init))
-            elif(info.status_code==200):
-                print(self.url, "code 200" )
-            
-    
-def copy_data(data):     
-    for k in range(len(data)):
-        n=[]
-        for i in data[k]:
-            n.append(i)
-        for key in range(1,len(n)):
-            data[k][n[key]]=ht.get_mutation(data[k][n[key]])            
-    return data
-
-
-
-def test():
-    for s in range(len(data)):
-        n=[]
-        
-        for i in data[s]:
-            n.append(i)
-        for K in range(1,len(n)): 
-            gp = GenePool(data[s][n[K]],n[K],data[s], url[s])   
-            
-            steps = gp.evolution()  
-            logger.info("Steps: %d" % steps)
-        
-       
-
-start_time = time.time()
-test()
-print()
-print( "Estimatied time:\t%s" % (time.time() - start_time))
