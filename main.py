@@ -1,7 +1,8 @@
 #import Interfaces
 #import simulated_annealing
-import mutatorIn
-import GA
+#import mutatorIn
+import mutatorInGA
+#import GA
 from numpy import exp
 import time
 import json
@@ -24,7 +25,7 @@ except ImportError:
 def main():
     
     
-    mutatorIn.test()
+    mutatorInGA.test("192.168.56.111")
     #simulated_annealing.test()    
     #Interfaces.test()
     

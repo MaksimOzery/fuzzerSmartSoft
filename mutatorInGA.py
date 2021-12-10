@@ -113,8 +113,11 @@ def test(x):
     n=[]
     T=1
     iterations = 0
+    inetaration_status_break=0
     while count:
-        
+        if(inetaration_status_break==2):
+            break
+               
         for i in range(0,1): 
             data= data_write(n2,v,data_1.data[0])
             for j in data:
@@ -129,26 +132,48 @@ def test(x):
                 data[n[key]]=ht._generator()
                 
                 if(inetaration_status==0):
-                    memoris=request_server_algRead("192.168.56.111")
-                    if(memory==old_memory):
-                        if((time.time()-starttimes)/60>=2):
-                            inetaration_status=1
-                    else:
-                        old_memory=memoris
-                        memory=data  
-                        
-                    page =  client.post(url[0],data=data, headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'], ips=ip),   verify=False )                
-                    if(page.status_code==500):
-                       print(page.status_code, page.reason)               
-                       print("-------------------------")  
-                       f = open( 'HTML_500'+n[key]+str(i)+'.txt', 'w' )
-                       for item in page.text:
-                           f.write("%s" % page.status_code)                          
-                           f.write("%s" % data[n[key]])
-                           f.write("%s" % n[key])
-                           f.write("%s" % "_____________________")
-                
-                
+                    try:
+                        memoris=request_server_algRead("192.168.56.111")
+                        if(memory==old_memory):
+                            if((time.time()-starttimes)/60>=2):
+                                inetaration_status=1
+                        else:
+                            old_memory=memoris
+                            memory=data  
+                    except:
+                           print("----------no connection---------")                           
+                           f = open( 'HTML_500.txt', 'a' )                           
+                           f.write("staus code %s " % 'no connection')                          
+                           f.write("data: %s " % data[n[key]])
+                           f.write("key: %s  " % n[key])
+                           f.write("%s" % "\n")
+                           f.close()
+                           return 
+                           
+                    print("----------I---------")
+                    try:
+                        page =  client.post(url[0],data=data,  timeout=25 ,headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'], ips=ip),   verify=False )                
+                        print(page.status_code)
+                        if(page.status_code==500):
+                           print(page.status_code, page.reason)               
+                           print("-----------post--------------")  
+                           f = open( 'HTML_500.txt', 'a' )                           
+                           f.write("staus code %s " % 'no connection')                          
+                           f.write("data: %s " % data[n[key]])
+                           f.write("key: %s  " % n[key])
+                           f.write("%s" % "\n")
+                           f.close()
+                    except:
+                           inetaration_status=1
+                           print("-----------except post--------------")  
+                           f = open( 'HTML_500.txt', 'a' )                           
+                           f.write("staus code %s " % 'no connection')                          
+                           f.write("data: %s " % data[n[key]])
+                           f.write("key: %s  " % n[key])
+                           f.write("%s" % "\n")
+                           f.close()
+                           
+
             
             n.clear() 
         print(url[0] ," ", iterations, " end time and data not changed ",(time.time()-starttimes)/60)   
