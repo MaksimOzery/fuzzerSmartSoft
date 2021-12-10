@@ -1,7 +1,7 @@
 #import Interfaces
-#import simulated_annealing
+import simulated_annealing
 #import mutatorIn
-import mutatorInGA
+#import mutatorInGA
 #import GA
 from numpy import exp
 import time
@@ -25,9 +25,9 @@ except ImportError:
 def main():
     
     
-    mutatorInGA.test("192.168.56.111")
+    simulated_annealing.test()
     #simulated_annealing.test()    
     #Interfaces.test()
     
-variablesIP.writes("192.168.56.111")    
+   
 main()

@@ -75,7 +75,7 @@ def test(x):
     
     ip_='https://'+ip
     url=[
-         ip_+'/system_certmanager.php?act=new',     
+         ip_+'/system_usermanager.php?act=new',     
          '''
          ip_+"/firewall_nat_edit.php",     
          ip_+"/firewall_nat_1to1_edit.php",
@@ -112,6 +112,7 @@ def test(x):
     n2=n
     n=[]
     T=1
+    
     iterations = 0
     inetaration_status_break=0
     while count:
@@ -119,6 +120,7 @@ def test(x):
             break
                
         for i in range(0,1): 
+            number_request=0
             data= data_write(n2,v,data_1.data[0])
             for j in data:
                 n.append(j)
@@ -133,10 +135,11 @@ def test(x):
                 
                 if(inetaration_status==0):
                     try:
-                        memoris=request_server_algRead("192.168.56.111")
+                        memoris=request_server_algRead(ip)
                         if(memory==old_memory):
                             if((time.time()-starttimes)/60>=2):
                                 inetaration_status=1
+                                print(url[0] ," ", iterations, " end time and data not changed ",(time.time()-starttimes)/60)  
                         else:
                             old_memory=memoris
                             memory=data  
@@ -150,10 +153,10 @@ def test(x):
                            f.close()
                            return 
                            
-                    print("----------I---------")
+                   
                     try:
                         page =  client.post(url[0],data=data,  timeout=25 ,headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'], ips=ip),   verify=False )                
-                        print(page.status_code)
+                        number_request+=1
                         if(page.status_code==500):
                            print(page.status_code, page.reason)               
                            print("-----------post--------------")  
@@ -176,7 +179,7 @@ def test(x):
 
             
             n.clear() 
-        print(url[0] ," ", iterations, " end time and data not changed ",(time.time()-starttimes)/60)   
+        print("Request",number_request )
         iterations = 0
         data=memory
         T+=1

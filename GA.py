@@ -39,7 +39,7 @@ GENES = "".join(map(lambda x, y: x+y, string.ascii_uppercase, string.ascii_lower
 GOAL = ""   
 
 #--------------------------------------------------------------------------
-ip="192.168.56.111"
+ip="192.168.56.107"
 #ip="192.168.50.2"
 #ip="192.168.50.3"
 aip='https://'+ip+'/index.php'
@@ -68,7 +68,7 @@ payload = {'usernamefld': "root",
 
 
 
-r = client.post( aip,  data=payload,  headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'],ips=ip),  verify=False )
+r = client.post( aip,  data=payload,    headers=ht.Headers_(csrftoken['PHPSESSID'],csrftoken['cookie_test'],ips=ip),  verify=False )
 #print(r.status_code, r.reason)
 print("------------autorization-------------")  
 
@@ -109,11 +109,21 @@ def request_server_algRead(ip):
 page =  client.get(url[0], verify=False )
 
 csrftoken =  client.cookies.get_dict()
-print(page.status_code)
+
 #-------------------------------------------------------------------
         
-def active(client,s, url,csrftoken_PHPSESSID,csrftoken_cookie_test):       
-    page =  client.post(url,data=s, headers=ht.Headers_(csrftoken_PHPSESSID, csrftoken_cookie_test,ips=ip),   verify=False , timeout=1.5)
+def active(client,s, url,csrftoken_PHPSESSID,csrftoken_cookie_test, key):  
+    try:
+        page =  client.post(url,data=s, headers=ht.Headers_(csrftoken_PHPSESSID, csrftoken_cookie_test,ips=ip),   verify=False , timeout=1.5)
+    except:
+        print("----------no connection---------")                           
+        f = open( 'HTML_500.txt', 'a' )                           
+        f.write("staus code %s " % 'no connection')                          
+        f.write("data: %s " % s)
+        f.write("key: %s  " % key)
+        f.write("%s" % "\n")
+        f.close()
+        return  
     return page        
         
 def fitness(dnk, goal):
@@ -201,18 +211,17 @@ class GenePool():
     def evolution(self, turns=1000):
         self.inetaration_status=0
         iterations = 0
-        self.starttimes = time.time()
-        txt=""
+        self.starttimes = time.time()  
+        R=0
         while (iterations < turns) and (self.pool[0].get() != self.goal):
             if(self.inetaration_status==0):
                 for index, item in enumerate(self.pool):
                     self.pool[index].mutate()
                 self.darvin()
-                txt =self.requset_evolution(self.json, self.pool)                
-                
+                R =self.requset_evolution(self.json, self.pool) 
                 time.sleep(0.1)
                 iterations += 1
-                self.memory=request_server_algRead("192.168.56.111")
+                self.memory=request_server_algRead(ip)
                 if(self.memory==self.old_memory):
                     if((time.time()-self.starttimes)>=2):
                         self.inetaration_status=1
@@ -220,26 +229,30 @@ class GenePool():
                     self.old_memory=self.memory
             else:
                 break
-        if(txt!=""):
-            return txt, " ", iterations, " end time and data not changed ",time.time()+117
-        else:
-            return ""
+        
+        return R
     def requset_evolution(self, j, k):
         massiv=[]
-        text_m=""
+        text_m=0
+        R=0
         for item in k:
             massiv.append(item.get())            
         for i in range(len(massiv)):        
             j[self.init]=massiv[i]            
-            info=active(client,j,self.url,csrftoken['PHPSESSID'],csrftoken['cookie_test'])            
+            info=active(client,j,self.url,csrftoken['PHPSESSID'],csrftoken['cookie_test'], massiv[i])  
+                        
             if(info.status_code==500):
                 print("-------------------------")  
-                f = open( 'HTML_500.txt', 'w' )
-                f.write("%s" % str(j[self.init])+"key"+str(self.init))
+                f = open( 'HTML_500.txt', 'a' )                           
+                f.write("staus code %s " % 'no connection')                          
+                f.write("data: %s " % data[n[key]])
+                f.write("key: %s  " % n[key])
+                f.write("%s" % "\n")
+                f.close()
             elif(info.status_code==200):
+                R+=1
                 
-                text_m=str(self.url)+ "code 200"+str(self.init )
-        return   text_m
+        return   R
     
 def copy_data(data):     
     for k in range(len(data)):
@@ -252,22 +265,22 @@ def copy_data(data):
 
 
 
-def main(mk):
+def test():
     steps_new=""
+     
     for s in range(len(data_1.data)):
         
-        data= data_write(n,v,data_1.data[mk])
+        data= data_write(n,v,data_1.data[0])
         name=[]
         
         for i in data:            
             name.append(i)
         for K in range(1,len(name)): 
-            
-            data= data_write(n,v,data_1.data[mk])            
-            gp = GenePool(data[name[K]],name[K],data, url[mk])             
-            steps  = str(gp.evolution()  )
-            
-            print(steps)
+            print("-----------------------"+str(K)+"--------------------------------")
+            data= data_write(n,v,data_1.data[0])            
+            gp = GenePool(data[name[K]],name[K],data, url[0])             
+            steps  = str(gp.evolution()  )            
+            print("Request ",steps)
             #print(chr(27) + "[2J")
         
        
@@ -275,6 +288,6 @@ def main(mk):
 start_time_ = time.time()
 
 
-main(1)
+test()
 print()
 print( "Estimatied time:\t%s" % (time.time() - start_time_ ))

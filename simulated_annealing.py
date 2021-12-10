@@ -24,7 +24,7 @@ except ImportError:
     from bs4 import BeautifulSoup
     
     
-ip=variablesIP.IP()
+ip="192.168.56.107"
 aip='https://'+ip+'/'+'index.php'
 password=''
 login=''
@@ -120,12 +120,31 @@ def _generator(s,key,memory):
     return s
 
 
-def active(client,s, url,csrftoken_PHPSESSID,csrftoken_cookie_test,url_text):       
-    page =  client.post(url,data=s[0], headers=ht.Headers_(csrftoken_PHPSESSID, csrftoken_cookie_test,ips=ip),   verify=False )
-    return page
+def active(client,s, url,csrftoken_PHPSESSID,csrftoken_cookie_test, key):  
+    try:
+      
+        page =  client.post(url,data=s[0], headers=ht.Headers_(csrftoken_PHPSESSID, csrftoken_cookie_test,ips=ip),   verify=False , timeout=1.5)
+       
+    except:
+        print("----------no connection---------")                           
+        f = open( 'HTML_500.txt', 'a' )                           
+        f.write("staus code %s " % 'no connection')                          
+        f.write("data: %s " % s[0])
+        f.write("key: %s  " % key)
+        f.write("%s" % "\n")
+        f.close()
+       
+    return page   
 
-def ocenka(data,x,s):   
+def ocenka(data,x,s, keys):   
     if(data.status_code==500):
+        print("-------------------------")  
+        f = open( 'HTML_500.txt', 'a' )                           
+        f.write("staus code %s " % 'no connection')                          
+        f.write("data: %s " % s[0])
+        f.write("key: %s  " % key)
+        f.write("%s" % "\n")
+        f.close()
         return (100*x)/len(s[0]),  data.status_code,1
 
     elif(data.status_code==200 and data.text.rfind('успешно')!=-1 ):
@@ -145,35 +164,35 @@ def simulated_annealing(active,  n_iterations, step_size, temp,data,
     Value_n2=0
     S=""
     best=''
-    for j in range(random.randint(1,len(n)),random.randint(1,len(n))):
+    Request=0
+    
+    for j in range(random.randint(1,len(n)),len(n)):
+        
         s=_generator(data,n[j],memory) 
+        
         info=active(client,s,url,csrftoken_PHPSESSID,
-                    csrftoken_cookie_test,url_text)
-        best, status,Value_n2=ocenka(info,value_n,s)
+                    csrftoken_cookie_test,n[j])      
+        best, status,Value_n2=ocenka(info,value_n,s,n[j])
         curr_eval = best
+        print("-------------------"+str(j)+"---------------------\n")
         value_n+=Value_n2
         for i in range(n_iterations):
              s=_generator(data,n[j],memory)             
              dataN=active(client,s,url,csrftoken_PHPSESSID,
-                          csrftoken_cookie_test,url_text)
-             bestN,status,Value_n2=ocenka(dataN,value_n,s)
-             if  Value_n2>0:
-                print("-------------------------")  
-                f = open( 'HTML_error'+str(n[j])+str(i)+'.txt', 'w' )
-                for item in dataN.text:
-                    f.write("%s" % item)
-                f.close()
+                          csrftoken_cookie_test,n[j])
+             bestN,status,Value_n2=ocenka(dataN,value_n,s,n[j])
+             Request+=1 
              value_n+=Value_n2
              if bestN < best:
                  data=s
                  best=bestN
              diff = bestN - curr_eval
              t = temp / float(i + 1)
-             print("diff=",diff,"temperature=", t,"best=",best,"status=",status,"znachenie=",value_n, 'key=',n[j])
+             print(Request)
              metropolis = exp(-diff / t)
              if diff < 0 or  random.random() < metropolis:  
                  data, best = s, bestN
-            
+        print("Request ",Request)    
         S=data
     return S, best,status
 
@@ -182,10 +201,7 @@ step_size = 0.1
 temp = 10
 
 
-print(simulated_annealing(active, n_iterations, step_size, temp,data, client,url[0],csrftoken['PHPSESSID'],csrftoken['cookie_test'],url_text[0]))
 
+def test():
 
-def test3(log,passw):
-    password=passw
-    login=log
     simulated_annealing(active, n_iterations, step_size, temp,data, client,url[0],csrftoken['PHPSESSID'],csrftoken['cookie_test'],url_text[0])
